@@ -23,6 +23,29 @@ def get_task(task_id):
 	abort(404)
     return jsonify({'Face': task[0]})
     
+@app.route('/todo/api/v1.0/tasks/closest_mac/<maxima_id>', methods=['GET'])
+def get_MAC(maxima_id):
+    airodump_csv_to_json.convert()
+    with open('dump.json') as data_file:
+	macfile = json.load(data_file) #Refreshes the dump.json file
+    count = 0
+    List = []
+    while True:
+	macpower = macfile[count]['power']
+	count += 1
+	List.append(macpower)
+	
+	if count == len(macfile):
+	    break
+    List = map(int, List)
+    highestpower = max(List)
+    maximum = int(maxima_id)
+    orderedhighestpower = sorted(set(List))[-maximum] #Allows us to choose order eg. 1st, 2nd etc within List
+    mactask = [mactask for mactask in macfile if mactask['power'] == str(orderedhighestpower)] #Selects JSON with 'mac' data
+    if len(mactask) == 0:
+	abort(404)
+    return jsonify({'Face': mactask[0]})
+    
 @app.route('/todo/api/v1.0/tasks/face_id', methods=['GET'])
 def get_face():
     webcam.getFaceimage()
