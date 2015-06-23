@@ -61,4 +61,5 @@ def getFaceimage():
 	cv2.destroyAllWindows()
 
 #MAIN Code
-getFaceimage()
+if __name__ == '__main__':
+	getFaceimage()
