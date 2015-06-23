@@ -49,11 +49,24 @@ def getFaceimage():
 				data = { 'app_key'	: 'cf34361b889d44c2bc85c46295853ecb',
 					'client_id'	: 'a8608c77397e4494b47336e73ac1255d' },
 				files = { 'img'		: ('filename', open( imagePath, 'rb') ) } )
-	    	#print "Response : ", json_resp.text
 		faceresponse = json_resp.text
-		out_file = open('face.json', 'w')
-		out_file.write("[%s]" % json_resp.text)
+		out_file = open('face.txt', 'w+')
+		out_file.write("%s" % json_resp.text)
 		out_file.close()
+		lines = open('face.txt').readlines()
+		superoutfile = open('faces.txt', 'w+')
+		superoutfile.writelines(lines[2:-4]) #Remove 2nd line and 4th line
+		superoutfile.readline()
+		superoutfile.close()
+		#Add in the bracket necessary
+		with open('faces.txt') as fin:
+		    lines = fin.readlines()
+		lines[0] = lines[0].replace('{', '[{')
+		lines[68] = lines[68].replace('}','}]')
+
+		with open('face.json', 'w') as fout:
+		    for line in lines:
+			fout.write(line)
 	    	break
 
 # When everything is done, release the capture
