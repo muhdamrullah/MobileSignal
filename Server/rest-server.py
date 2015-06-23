@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 import json
 import airodump_csv_to_json
+import webcam
 
 app = Flask(__name__)
 
@@ -21,6 +22,15 @@ def get_task(task_id):
     if len(task) == 0:
 	abort(404)
     return jsonify({'Face': task[0]})
+    
+@app.route('/todo/api/v1.0/tasks/face_id', methods=['GET'])
+def get_face():
+    webcam.getFaceimage()
+    with open('face.json') as face_file:
+	faces = json.load(face_file)
+    if len(faces) == 0:
+	abort(404)
+    return jsonify({'Response': faces[0]})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', 8080)
