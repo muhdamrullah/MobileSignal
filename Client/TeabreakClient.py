@@ -25,11 +25,27 @@ def pullFace(ipAddress):
     try:
         response = requests.get(url)
         data = response.json
-        rawData =  data['Response']['age']['value']
-        print rawData
-    except (ValueError, requests.ConnectionError):
-        rawData = "None"
-        print rawData
+        ageData =  data['Response']['age']['value']
+        print ageData
+        genderData =  data['Response']['gender']['value']
+        print genderData
+        sadnessData =  data['Response']['expressions']['sadness']['value']
+        print sadnessData
+        neutralData =  data['Response']['expressions']['neutral']['value']
+        print neutralData
+        disgustData =  data['Response']['expressions']['disgust']['value']
+        print disgustData
+        angerData =  data['Response']['expressions']['anger']['value']
+        print angerData
+        surpriseData =  data['Response']['expressions']['surprise']['value']
+        print surpriseData
+        fearData =  data['Response']['expressions']['fear']['value']
+        print fearData
+        happinessData =  data['Response']['expressions']['happiness']['value']
+        print happinessData
+    except (TypeError, requests.ConnectionError):
+        pass
+        
 
 IP_ADD = "localhost:8080"
 pullApi("1", IP_ADD)
