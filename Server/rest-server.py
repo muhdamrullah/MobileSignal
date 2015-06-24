@@ -38,6 +38,7 @@ def get_MAC(maxima_id):
 	if count == len(macfile):
 	    break
     List = map(int, List)
+    List = filter(lambda a: a != '-1', List)
     highestpower = max(List)
     maximum = int(maxima_id)
     orderedhighestpower = sorted(set(List))[-maximum] #Allows us to choose order eg. 1st, 2nd etc within List
