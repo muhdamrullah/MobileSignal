@@ -2,6 +2,7 @@ import json
 import requests
 from urlparse import urlparse
 import time
+import csv
 
 def pullApi(macPower, ipAddress):
     http = 'http://'
@@ -11,8 +12,8 @@ def pullApi(macPower, ipAddress):
     try:
         response = requests.get(url)
         data = response.json
+	global rawData
         rawData =  data['Face']['mac']
-        print rawData
     except (ValueError, requests.ConnectionError):
         rawData = "None"
         print rawData
@@ -26,27 +27,43 @@ def pullFace(ipAddress):
         response = requests.get(url)
         data = response.json
         ageData =  data['Response']['age']['value']
-        print ageData
+        agerangeData =  data['Response']['age']['range']
         genderData =  data['Response']['gender']['value']
-        print genderData
         sadnessData =  data['Response']['expressions']['sadness']['value']
-        print sadnessData
         neutralData =  data['Response']['expressions']['neutral']['value']
-        print neutralData
         disgustData =  data['Response']['expressions']['disgust']['value']
-        print disgustData
         angerData =  data['Response']['expressions']['anger']['value']
-        print angerData
         surpriseData =  data['Response']['expressions']['surprise']['value']
-        print surpriseData
         fearData =  data['Response']['expressions']['fear']['value']
-        print fearData
         happinessData =  data['Response']['expressions']['happiness']['value']
-        print happinessData
+
+        b = open('MobileSignalFaceDataLog.csv', 'a')    # open a file for writing
+        a = csv.writer(b)                          # create the csv writer object.
+        data = [[rawData, '%s+/-%s' % (ageData, agerangeData), genderData, sadnessData, neutralData, disgustData, angerData, surpriseData, fearData, happinessData]]
+        a.writerows(data)
+        b.close()
     except (TypeError, requests.ConnectionError):
         pass
-        
 
+    ## DATA LOG - CSV FILE WRITING
+def startCSV():
+    b = open('MobileSignalFaceDataLog.csv', 'a')    # open a file for writing
+    a = csv.writer(b)                          # create the csv writer object.
+    data = [['Unique_ID', 'Age', 'Gender', 'Sadness_Intensity', 'Neutral_Intensity', 'Disgust_Intensity', 'Anger_Intensity', 'Surprise_Intensity', 'Fear_Intensity', 'Happiness_Intensity']]
+    a.writerows(data)
+    b.close()
+
+
+def mobileWait(time_lapse):
+    time_start = time.time()
+    time_end = (time_start + time_lapse)
+    
+    while time_end > time.time():
+        pass
+
+startCSV()	
 IP_ADD = "localhost:8080"
-pullApi("1", IP_ADD)
-pullFace(IP_ADD)
+while True:
+    pullApi("1", IP_ADD)
+    pullFace(IP_ADD)
+    mobileWait(1)
