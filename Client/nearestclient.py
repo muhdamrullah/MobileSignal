@@ -31,6 +31,9 @@ def enterMAC(MAC, ipstr):
    
 #Change the 4 Signal data into a float
 def getCoordinates(MAC):
+    global x
+    global y
+    global coordinates
     SignalPower = enterMAC(MAC, IP_first)
     Signal1_raw = float(SignalPower)
     SignalPower = enterMAC(MAC, IP_second)
@@ -41,10 +44,6 @@ def getCoordinates(MAC):
     Signal4_raw = float(SignalPower)
     Signal1, Signal2, Signal3, Signal4 = [x if x > 0 else 0.01 for x in (Signal1_raw, Signal2_raw, Signal3_raw, Signal4_raw)]
     coordinates = triangulate([(0.0, 140.0, Signal1), (250.0, 40.0, Signal2), (50.0, 100.0, Signal3), (50.0, 50.0, Signal4) ])      #this config depends on actual dimensions of where sensors are placed
-    global coordinates
-    
-    global x
-    global y
     x=coordinates[0]
     y=coordinates[1]
     
@@ -168,36 +167,37 @@ def trackSignal(x,y,MAC):
     
     if MAC=='609217ACCEE7':
         NAME='Ibnur'
-    if MAC=='549F1394942C':
+    elif MAC=='549F1394942C':
         NAME='Julia'
-    if MAC=='D4970B5D2FE2':
+    elif MAC=='D4970B5D2FE2':
         NAME='Mei'
-    if MAC=='9CF3871E6E17':
+    elif MAC=='9CF3871E6E17':
         NAME='Farez'
-    if MAC=='D890E849D6DE':
+    elif MAC=='D890E849D6DE':
         NAME='Sid'
-    if MAC=='54A050EA61FE':
+    elif MAC=='54A050EA61FE':
         NAME='Hui Ying'
-    if MAC=='E4F8EF5F1063':
+    elif MAC=='E4F8EF5F1063':
         NAME='Eugene'
-    if MAC=='D022BE680959':
+    elif MAC=='D022BE680959':
         NAME='Lai Hock'
-    if MAC=='843835E15530':
+    elif MAC=='843835E15530':
         NAME='Xu Hong'
-    if MAC=='A88E24689880':
+    elif MAC=='A88E24689880':
         NAME='Amrullah'
-    if MAC=='8863DF4FC4F8':
+    elif MAC=='8863DF4FC4F8':
         NAME='Chloe'
-    if MAC=='CC3A61881CC1':
+    elif MAC=='CC3A61881CC1':
         NAME='Sam'
-    if MAC=='90187C72017C':
+    elif MAC=='90187C72017C':
         NAME='Nick'
-    if MAC=='C81EE73376BB':
+    elif MAC=='C81EE73376BB':
         NAME='Fred'
-    if MAC=='D896953F9A4C':
+    elif MAC=='D896953F9A4C':
         NAME='Felicia'
     else:
-	NAME='%s' % MAC
+	NAME=MAC
+	#NAME='%s' % MAC
     
     Signal[count-1].write('   '+NAME, font=("Arial", 10))
     
@@ -212,11 +212,13 @@ IP_second = "192.168.1.121:8080"             # 1. Toilet
 IP_third = "192.168.1.122:8080"                # 2. 20 footer TV
 IP_fourth = "192.168.1.123:8080"             # 3. 20 footer Air con
     
-
+NAME = '0'
 def runInfinitely():
 #"""Get coordinates via API every 10 secs and plot it"""
  	
     List=[]          #List will include mobile signals to be tracked. If List has 3 elements, we wish to track 3 ppl
+    global check
+    global count
     check=0
     count=0
     
@@ -224,14 +226,14 @@ def runInfinitely():
         NAME = raw_input("Enter a name: ") 
         
         if NAME=='NO':
-	    macData = pullMAC('1', IP_first)
-	    MAC = macData
-	    NAME = MAC
-	    print MAC
-	    List.append(MAC)
-            break
+	    for x in range(1,6): # An arbitrary number based on how many closest '6' mobile signals you want to discover
+                check+=1
+		macData = pullMAC(str(x), IP_first)
+	        MAC = macData
+	        print MAC
+	        List.append(MAC)
+	    break
         else:
-            global check
             check+=1
         
             if NAME=='Ibnur':
@@ -276,45 +278,44 @@ def runInfinitely():
     
     while True:
         for i in List:
-            global count 
             count+=1
-            str.strip(i)           #MAC input, which is stored as str in List will be stripped of str inverted commas
+            #str.strip(i)           #MAC input, which is stored as str in List will be stripped of str inverted commas
             getCoordinates(i) 
             
-            if i=='609217ACCEE7':
+            if i == '609217ACCEE7':	#An elif function must be used or else the 'else' function will be used by default
                 NAME='Ibnur'
-            if i=='549F1394942C':
+            elif i == '549F1394942C':
                 NAME='Julia'
-            if i=='D4970B5D2FE2':
+            elif i == 'D4970B5D2FE2':
                 NAME='Mei'
-            if i=='9CF3871E6E17':
+            elif i == '9CF3871E6E17':
                 NAME='Farez'
-            if i=='D890E849D6DE':
+            elif i == 'D890E849D6DE':
                 NAME='Sid'
-            if i=='54A050EA61FE':
+            elif i == '54A050EA61FE':
                 NAME='Hui Ying'
-            if i=='E4F8EF5F1063':
+            elif i == 'E4F8EF5F1063':
                 NAME='Eugene'
-            if i=='D022BE680959':
+            elif i == 'D022BE680959':
                 NAME='Lai Hock'
-            if i=='843835E15530':
+            elif i == '843835E15530':
                 NAME='Xu Hong'
-            if i=='A88E24689880':
+            elif i == 'A88E24689880':
                 NAME='Amrullah'
-            if i=='8863DF4FC4F8':
+            elif i == '8863DF4FC4F8':
                 NAME='Chloe'
-            if i=='CC3A61881CC1':
+            elif i == 'CC3A61881CC1':
                 NAME='Sam'
-            if i=='90187C72017C':
+            elif i == '90187C72017C':
                 NAME='Nick'
-            if i=='C81EE73376BB':
+            elif i == 'C81EE73376BB':
                 NAME='Fred'
-            if i=='D896953F9A4C':
+            elif i == 'D896953F9A4C':
                 NAME='Felicia'
 	    else:
-		NAME==i
-                
-            print NAME, 'is at ', '(',x,',',y,')'
+		NAME=i
+
+	    print NAME, 'is at ', '(',x,',',y,')'
             
             trackSignal(x,y,i)
             
@@ -329,7 +330,7 @@ def runInfinitely():
             if count>=check:     #check and count are both representing the MAC/icon's number. Dont worry about too much about this. This is for the sake of having icons following every turtle
                 count=0               #resetting count so that count doesn't increase infinitely. We want it to work with the   trackSignal  function above
             
-        mobileWait(10)       # Refreshes every 10s
+        mobileWait(5)       # Refreshes every 10s
         
 
 #FINAL COMMANDS
