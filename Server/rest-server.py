@@ -31,14 +31,16 @@ def get_MAC(maxima_id):
     count = 0
     List = []
     while True:
-	macpower = macfile[count]['power']
+	macpower = int(macfile[count]['power']) #Changes str format to int format
 	count += 1
-	List.append(macpower)
-	
+	if macpower >= -80 and macpower < -1:
+	    List.append(macpower)
+	else:
+	    pass
 	if count == len(macfile):
 	    break
     List = map(int, List)
-    List = filter(lambda a: a != '-1', List)
+    #List = filter(lambda a: a != '-1', List)
     highestpower = max(List)
     maximum = int(maxima_id)
     orderedhighestpower = sorted(set(List))[-maximum] #Allows us to choose order eg. 1st, 2nd etc within List
