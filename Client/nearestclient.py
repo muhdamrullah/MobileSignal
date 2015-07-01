@@ -3,6 +3,7 @@ import requests
 from urlparse import urlparse
 from triangulate import triangulate
 import time
+from random import randint
 
 signalPower = 0
 
@@ -44,8 +45,8 @@ def getCoordinates(MAC):
     Signal4_raw = float(SignalPower)
     Signal1, Signal2, Signal3, Signal4 = [x if x > 0 else 0.01 for x in (Signal1_raw, Signal2_raw, Signal3_raw, Signal4_raw)]
     coordinates = triangulate([(0.0, 140.0, Signal1), (250.0, 40.0, Signal2), (50.0, 100.0, Signal3), (50.0, 50.0, Signal4) ])      #this config depends on actual dimensions of where sensors are placed
-    x=coordinates[0]
-    y=coordinates[1]
+    x=coordinates[0] + randint(-4,4)
+    y=coordinates[1] + randint(-4,4)
     
 def mobileWait(time_lapse):
     time_start = time.time()
@@ -200,27 +201,14 @@ def trackSignal(x,y,MAC):
 	#NAME='%s' % MAC
     
     Signal[count-1].write('   '+NAME, font=("Arial", 10))
-    
-    
 
-
-"""PART III: INTEGRATION"""
-import csv
-
-IP_first = "localhost:8080"                  # 0. Seminar Room entrance
-IP_second = "192.168.1.121:8080"             # 1. Toilet
-IP_third = "192.168.1.122:8080"                # 2. 20 footer TV
-IP_fourth = "192.168.1.123:8080"             # 3. 20 footer Air con
-    
-NAME = '0'
-def runInfinitely():
-#"""Get coordinates via API every 10 secs and plot it"""
+# This function generates a list of MAC addresses inputed and nearby and returns the List
+def generateList():
  	
-    List=[]          #List will include mobile signals to be tracked. If List has 3 elements, we wish to track 3 ppl
     global check
     global count
-    check=0
-    count=0
+    List = []
+    a = 0 #This is an arbitrary variable used to count the list
     
     while check<20:                   # A max of 20 signals can be inputted	
         NAME = raw_input("Enter a name: ") 
@@ -268,18 +256,45 @@ def runInfinitely():
                 MAC='D896953F9A4C'
             
             List.append(MAC)
+	    a = len(List)
+    generateList.takeforList = a
+    return List
 
-    ## DATA LOG - CSV FILE WRITING
+## Function to log the key header of elements into CSV
+def beginLog():
     b = open('MobileSignalDataLog.csv', 'a')    # open a file for writing
     a = csv.writer(b)                          # create the csv writer object.
     data = [['Name', 'x', 'y', 'No. of signals tracked']]
     a.writerows(data)
     b.close()
+
+"""PART III: INTEGRATION"""
+import csv
+
+IP_first = "localhost:8080"                  # 0. Seminar Room entrance
+IP_second = "192.168.1.121:8080"             # 1. Toilet
+IP_third = "192.168.1.122:8080"                # 2. 20 footer TV
+IP_fourth = "192.168.1.123:8080"             # 3. 20 footer Air con
+    
+def runInfinitely():
+#"""Get coordinates via API every 10 secs and plot it"""
+ 	
+    List=[]          #List will include mobile signals to be tracked. If List has 3 elements, we wish to track 3 ppl
+    global check
+    global count
+    check=0
+    count=0
+    
+    ## OBTAIN LIST OF MAC ADDRESSES
+    List = generateList()
+    n = generateList.takeforList
+
+    ## DATA LOG - CSV FILE WRITING
+    beginLog()
     
     while True:
         for i in List:
             count+=1
-            #str.strip(i)           #MAC input, which is stored as str in List will be stripped of str inverted commas
             getCoordinates(i) 
             
             if i == '609217ACCEE7':	#An elif function must be used or else the 'else' function will be used by default
@@ -327,8 +342,15 @@ def runInfinitely():
             b.close()   
                  
                            
-            if count>=check:     #check and count are both representing the MAC/icon's number. Dont worry about too much about this. This is for the sake of having icons following every turtle
-                count=0               #resetting count so that count doesn't increase infinitely. We want it to work with the   trackSignal  function above
+            if count>=check:     #check and count are both representing the MAC/icon's number.
+                count=0          #resetting count so that count doesn't increase infinitely. We want it to work with the   trackSignal  function above
+		print "Refreshing list..."
+		List = List[:n]  #Takes the first n digits from list
+		for k in range(1,6): # An arbitrary number based on how many closest '6' mobile signals you want to discover
+		    kmacData = pullMAC(str(k), IP_first)
+	            kMAC = kmacData
+		    print kMAC
+	            List.append(kMAC)
             
         mobileWait(5)       # Refreshes every 10s
         
