@@ -18,7 +18,7 @@ def pullApi(macAddress, ipAddress):
         data = response.json
         rawData =  data['Face']['power']
         return rawData
-    except (ValueError, requests.ConnectionError):
+    except (TypeError, ValueError, requests.ConnectionError):
         rawData = -88
         return rawData
 
@@ -41,10 +41,10 @@ def getCoordinates(MAC):
     Signal2_raw = float(SignalPower)
     SignalPower = enterMAC(MAC, IP_third)
     Signal3_raw = float(SignalPower)
-    SignalPower = enterMAC(MAC, IP_fourth)
-    Signal4_raw = float(SignalPower)
-    Signal1, Signal2, Signal3, Signal4 = [x if x > 0 else 0.01 for x in (Signal1_raw, Signal2_raw, Signal3_raw, Signal4_raw)]
-    coordinates = triangulate([(0.0, 140.0, Signal1), (250.0, 40.0, Signal2), (50.0, 100.0, Signal3), (50.0, 50.0, Signal4) ])      #this config depends on actual dimensions of where sensors are placed
+#    SignalPower = enterMAC(MAC, IP_fourth)
+#    Signal4_raw = float(SignalPower)
+    Signal1, Signal2, Signal3 = [x if x > 0 else 0.01 for x in (Signal1_raw, Signal2_raw, Signal3_raw)]
+    coordinates = triangulate([(340.0, 70.0, Signal1), (50.0, 100.0, Signal2), (250.0, 200.0, Signal3) ])      #this config depends on actual dimensions of where sensors are placed
     x=coordinates[0] + randint(-4,4)
     y=coordinates[1] + randint(-4,4)
     
@@ -67,7 +67,7 @@ def pullMAC(macRank, ipAddress):
         semirawData =  data['Face']['mac']
 	macData = str(semirawData.replace(':',''))
         return macData
-    except (ValueError, requests.ConnectionError):
+    except (TypeError, ValueError, requests.ConnectionError):
         macData = '000000000000'
         return macData
     
@@ -198,7 +198,6 @@ def trackSignal(x,y,MAC):
         NAME='Felicia'
     else:
 	NAME=MAC
-	#NAME='%s' % MAC
     
     Signal[count-1].write('   '+NAME, font=("Arial", 10))
 
@@ -215,11 +214,19 @@ def generateList():
         
         if NAME=='NO':
 	    for x in range(1,6): # An arbitrary number based on how many closest '6' mobile signals you want to discover
-                check+=1
+                check+=3
 		macData = pullMAC(str(x), IP_first)
 	        MAC = macData
 	        print MAC
 	        List.append(MAC)
+		macData = pullMAC(str(x), IP_second)
+	        MAC2 = macData
+	        print MAC2
+	        List.append(MAC2)
+		macData = pullMAC(str(x), IP_third)
+	        MAC3 = macData
+	        print MAC3
+	        List.append(MAC3)
 	    break
         else:
             check+=1
@@ -271,10 +278,10 @@ def beginLog():
 """PART III: INTEGRATION"""
 import csv
 
-IP_first = "localhost:8080"                  # 0. Seminar Room entrance
-IP_second = "192.168.1.121:8080"             # 1. Toilet
-IP_third = "192.168.1.122:8080"                # 2. 20 footer TV
-IP_fourth = "192.168.1.123:8080"             # 3. 20 footer Air con
+IP_first = "192.168.0.120:8080"                  # 0. Seminar Room entrance
+IP_second = "192.168.0.121:8080"             # 1. Toilet
+IP_third = "192.168.0.122:8080"                # 2. 20 footer TV
+#IP_fourth = "192.168.1.123:8080"             # 3. 20 footer Air con
     
 def runInfinitely():
 #"""Get coordinates via API every 10 secs and plot it"""
@@ -293,6 +300,8 @@ def runInfinitely():
     beginLog()
     
     while True:
+	List = list(set(List))
+	totallengthList = len(List)
         for i in List:
             count+=1
             getCoordinates(i) 
@@ -342,15 +351,23 @@ def runInfinitely():
             b.close()   
                  
                            
-            if count>=check:     #check and count are both representing the MAC/icon's number.
+            if count>=check or count>=totallengthList:     #check and count are both representing the MAC/icon's number.
                 count=0          #resetting count so that count doesn't increase infinitely. We want it to work with the   trackSignal  function above
 		print "Refreshing list..."
 		List = List[:n]  #Takes the first n digits from list
 		for k in range(1,6): # An arbitrary number based on how many closest '6' mobile signals you want to discover
-		    kmacData = pullMAC(str(k), IP_first)
-	            kMAC = kmacData
-		    print kMAC
-	            List.append(kMAC)
+		    macData = pullMAC(str(k), IP_first)
+	            MAC = macData
+		    print MAC
+	            List.append(MAC)
+		    macData = pullMAC(str(k), IP_second)
+	            MAC2 = macData
+		    print MAC2
+	            List.append(MAC2)
+		    macData = pullMAC(str(k), IP_third)
+	            MAC3 = macData
+		    print MAC3
+	            List.append(MAC3)
             
         mobileWait(5)       # Refreshes every 10s
         
