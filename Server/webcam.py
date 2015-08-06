@@ -36,8 +36,8 @@ def getFaceimage():
 
 	    # Saving the image
 	    roi = frame[y:y+h, x:x+w]
-	    cv2.imwrite("roi.png", roi)
-
+	    cv2.imwrite("roi.png", roi) 
+	    cv2.imwrite("/home/odroid/MobileSignal/Client/frame.png", frame)
 	    # Display the resulting frame
 	    cv2.imshow('Video', frame)
 	    
